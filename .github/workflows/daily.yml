@@ -31,6 +31,7 @@ jobs:
           WA_TOKEN: ${{ secrets.WA_TOKEN }}
           WA_PHONE_ID: ${{ secrets.WA_PHONE_ID }}
           WA_TO: ${{ secrets.WA_TO }}
+          WA_TEMPLATE: job_digest
         run: python main.py
 
       - name: Persist seen state
