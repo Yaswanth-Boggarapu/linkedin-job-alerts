@@ -72,7 +72,7 @@ def send_whatsapp(jobs):
     headline = " ".join(headline.split())
 
     resp = requests.post(
-        f"https://graph.facebook.com/v21.0/{config.WA_PHONE_ID}/messages",
+        f"https://graph.facebook.com/v25.0/{config.WA_PHONE_ID}/messages",
         headers={"Authorization": f"Bearer {config.WA_TOKEN}"},
         json={
             "messaging_product": "whatsapp",
