@@ -8,20 +8,19 @@ ROLES = [
     "machine learning engineer",
     "data engineer",
     "data scientist",
+    "data analyst",
     "ai engineer",
 ]
 
-LOCATIONS = [
-    "Dublin, Ireland",
-    "Cork, Ireland",
-    "Galway, Ireland",
-]
+# Open to anywhere in Ireland, so search the country rather than a city list.
+# One location keeps the query count low enough to add more boards.
+LOCATIONS = ["Ireland"]
 
-SITES = ["linkedin", "indeed"]
-COUNTRY_INDEED = "Ireland"
+SITES = ["linkedin", "indeed", "glassdoor", "google"]
+COUNTRY = "Ireland"
 
 RESULTS_PER_QUERY = 40
-HOURS_OLD = 26          # slight overlap with the 24h cron; dedupe handles it
+HOURS_OLD = 26          # slight overlap with the daily cron; dedupe handles it
 DELAY_BETWEEN_QUERIES = 4
 
 # Drop anything whose title matches these before it reaches you.
@@ -30,7 +29,7 @@ TITLE_EXCLUDE = [
     "head of", "vp ", "architect",
 ]
 
-# Secrets come from the environment (GitHub Actions secrets locally: .env)
+# Secrets come from the environment.
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
 DIGEST_TO = os.environ.get("DIGEST_TO", "")
