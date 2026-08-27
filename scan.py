@@ -1,7 +1,7 @@
 """Run the configured queries through JobSpy and return a flat list of dicts.
 
-Per-query failures are logged and skipped. LinkedIn rate-limiting is expected,
-not exceptional: a run that only gets Indeed results is still a useful run.
+Per-query failures are logged and skipped. Rate limiting is expected, not
+exceptional: a run that only gets two of four boards is still a useful run.
 """
 
 import logging
@@ -11,10 +11,12 @@ import pandas as pd
 from jobspy import scrape_jobs
 
 import config
+import experience
 
 log = logging.getLogger(__name__)
 
-KEEP = ["site", "id", "title", "company", "location", "job_url", "date_posted"]
+KEEP = ["site", "id", "title", "company", "location", "job_url",
+        "date_posted", "job_level", "description"]
 
 
 def _excluded(title):
@@ -23,16 +25,22 @@ def _excluded(title):
 
 
 def _one(site, role, location):
-    df = scrape_jobs(
+    kwargs = dict(
         site_name=[site],
         search_term=role,
         location=location,
         results_wanted=config.RESULTS_PER_QUERY,
         hours_old=config.HOURS_OLD,
-        country_indeed=config.COUNTRY_INDEED,
+        country_indeed=config.COUNTRY,
         linkedin_fetch_description=False,
         verbose=0,
     )
+    # Google's scraper wants a natural-language query rather than a term
+    # plus a location field.
+    if site == "google":
+        kwargs["google_search_term"] = f"{role} jobs in {location}"
+
+    df = scrape_jobs(**kwargs)
     if df is None or df.empty:
         return []
     for col in KEEP:
@@ -48,7 +56,7 @@ def collect():
     for site in config.SITES:
         for role in config.ROLES:
             for location in config.LOCATIONS:
-                label = f"{site}/{role}/{location}"
+                label = f"{site}/{role}"
                 try:
                     found = _one(site, role, location)
                     jobs.extend(found)
@@ -58,8 +66,7 @@ def collect():
                     log.warning("%s failed: %s", label, exc)
                 time.sleep(config.DELAY_BETWEEN_QUERIES)
 
-    kept = []
-    seen_in_run = set()
+    kept, seen_in_run = [], set()
     for job in jobs:
         if _excluded(job.get("title")):
             continue
@@ -67,7 +74,13 @@ def collect():
         if key in seen_in_run:
             continue
         seen_in_run.add(key)
+
+        rank, label = experience.classify(job)
+        job["exp_rank"] = rank
+        job["exp_label"] = label
         job["date_posted"] = str(job.get("date_posted") or "")
+        job.pop("description", None)   # only needed for classification
+        job.pop("job_level", None)
         kept.append(job)
 
     log.info("collected %d unique after filters (%d queries failed)",
