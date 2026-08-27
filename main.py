@@ -1,4 +1,4 @@
-"""scan -> dedupe -> notify. Exits 0 even on a quiet day."""
+"""scan -> dedupe -> sort -> notify. Exits 0 even on a quiet day."""
 
 import logging
 import sys
@@ -21,10 +21,16 @@ def run():
         logging.info("nothing new today")
         return 0
 
-    fresh.sort(key=lambda j: (j.get("is_repost", False), j.get("company") or ""))
+    # Most junior first; reposts sink within their tier; then company for
+    # a stable order run to run.
+    fresh.sort(key=lambda j: (
+        j.get("exp_rank", 9),
+        j.get("is_repost", False),
+        (j.get("company") or "").lower(),
+    ))
 
-    notify.send_email(fresh, failures)
-    notify.send_whatsapp(fresh)
+    wa_ok = notify.send_whatsapp(fresh)
+    notify.send_email(fresh, failures, wa_ok)
     return 0
 
 
