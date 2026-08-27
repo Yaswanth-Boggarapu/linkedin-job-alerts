@@ -1,7 +1,7 @@
 """Delivery. Email is the durable record; WhatsApp is the ping.
 
 WhatsApp template parameters cannot contain newlines, so the WhatsApp message
-is deliberately a short summary. The full list goes by email.
+is deliberately a short summary. The full table goes by email.
 """
 
 import logging
@@ -14,29 +14,77 @@ import config
 
 log = logging.getLogger(__name__)
 
+SITE_NAMES = {
+    "linkedin": "LinkedIn",
+    "indeed": "Indeed",
+    "glassdoor": "Glassdoor",
+    "google": "Google",
+    "zip_recruiter": "ZipRecruiter",
+}
 
-def _html(jobs, failures):
-    rows = []
+TH = "padding:8px 12px;text-align:left;border-bottom:2px solid #ddd;font-size:13px"
+TD = "padding:8px 12px;border-bottom:1px solid #eee;vertical-align:top"
+
+
+def _rows(jobs):
+    out = []
     for job in jobs:
-        flag = " <span style='color:#b26a00'>[repost]</span>" if job.get("is_repost") else ""
-        rows.append(
-            f"<tr><td style='padding:6px 10px'><a href='{job['job_url']}'>{job['title']}</a>{flag}</td>"
-            f"<td style='padding:6px 10px'>{job.get('company') or ''}</td>"
-            f"<td style='padding:6px 10px'>{job.get('location') or ''}</td>"
-            f"<td style='padding:6px 10px;color:#666'>{job.get('site')}</td></tr>"
+        repost = (" <span style='color:#b26a00;font-size:11px'>[repost]</span>"
+                  if job.get("is_repost") else "")
+        exp = job.get("exp_label") or "Not stated"
+        # Grey out the ones we couldn't classify so the real signal stands out.
+        exp_style = "color:#999" if exp == "Not stated" else "color:#1a7f37;font-weight:600"
+        out.append(
+            f"<tr>"
+            f"<td style='{TD}'><a href='{job['job_url']}'>{job.get('title') or ''}</a>{repost}</td>"
+            f"<td style='{TD}'>{job.get('company') or ''}</td>"
+            f"<td style='{TD};{exp_style}'>{exp}</td>"
+            f"<td style='{TD}'>{job.get('location') or ''}</td>"
+            f"<td style='{TD};color:#666'>{SITE_NAMES.get(job.get('site'), job.get('site') or '')}</td>"
+            f"</tr>"
         )
+    return "".join(out)
+
+
+def _html(jobs, failures, wa_ok):
     note = ""
     if failures:
-        note = (f"<p style='color:#888;font-size:12px'>{len(failures)} "
-                f"queries were rate-limited this run: {', '.join(failures[:6])}</p>")
+        note = (f"<p style='color:#888;font-size:12px'>{len(failures)} queries "
+                f"were rate-limited or failed this run: {', '.join(failures[:8])}</p>")
+
+    wa_line = ""
+    if config.WA_TOKEN:
+        wa_line = ("<p style='color:#1a7f37;font-size:12px'>WhatsApp ping sent.</p>"
+                   if wa_ok else
+                   "<p style='color:#c00;font-size:12px'>WhatsApp ping failed "
+                   "(see the run log). Email is unaffected.</p>")
+
     return (
-        f"<h2>{len(jobs)} new roles</h2>"
-        f"<table style='border-collapse:collapse;font-family:sans-serif;font-size:14px'>"
-        f"{''.join(rows)}</table>{note}"
+        f"<div style='font-family:-apple-system,Segoe UI,sans-serif'>"
+        f"<h2 style='margin-bottom:4px'>{len(jobs)} new roles</h2>"
+        f"<p style='color:#666;font-size:13px;margin-top:0'>"
+        f"Sorted with the most junior roles first.</p>"
+        f"<table style='border-collapse:collapse;font-size:14px;width:100%'>"
+        f"<tr>"
+        f"<th style='{TH}'>Role</th><th style='{TH}'>Company</th>"
+        f"<th style='{TH}'>Experience</th><th style='{TH}'>Location</th>"
+        f"<th style='{TH}'>Source</th>"
+        f"</tr>{_rows(jobs)}</table>{note}{wa_line}</div>"
     )
 
 
-def send_email(jobs, failures):
+def _plain(jobs):
+    lines = []
+    for j in jobs:
+        lines.append(
+            f"{j.get('title')} | {j.get('company')} | {j.get('exp_label')} | "
+            f"{j.get('location')} | {SITE_NAMES.get(j.get('site'), j.get('site'))}\n"
+            f"  {j.get('job_url')}"
+        )
+    return "\n".join(lines) or "No new roles today."
+
+
+def send_email(jobs, failures, wa_ok=False):
     if not (config.SMTP_USER and config.SMTP_PASS and config.DIGEST_TO):
         log.warning("email not configured, skipping")
         return False
@@ -45,11 +93,8 @@ def send_email(jobs, failures):
     msg["Subject"] = f"{len(jobs)} new roles"
     msg["From"] = config.SMTP_USER
     msg["To"] = config.DIGEST_TO
-    msg.set_content(
-        "\n".join(f"{j['title']} - {j.get('company')} - {j['job_url']}" for j in jobs)
-        or "No new roles today."
-    )
-    msg.add_alternative(_html(jobs, failures), subtype="html")
+    msg.set_content(_plain(jobs))
+    msg.add_alternative(_html(jobs, failures, wa_ok), subtype="html")
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(config.SMTP_USER, config.SMTP_PASS)
@@ -67,9 +112,8 @@ def send_whatsapp(jobs):
         return False
 
     top = jobs[0]
-    headline = f"{top['title']} at {top.get('company') or 'unknown'}"[:120]
-    # No newlines/tabs allowed in template parameters.
-    headline = " ".join(headline.split())
+    headline = f"{top.get('title')} at {top.get('company') or 'unknown'}"[:120]
+    headline = " ".join(headline.split())   # no newlines allowed in params
 
     resp = requests.post(
         f"https://graph.facebook.com/v25.0/{config.WA_PHONE_ID}/messages",
@@ -93,7 +137,7 @@ def send_whatsapp(jobs):
         timeout=30,
     )
     if resp.status_code >= 300:
-        log.warning("whatsapp failed %s: %s", resp.status_code, resp.text[:300])
+        log.warning("whatsapp failed %s: %s", resp.status_code, resp.text[:400])
         return False
     log.info("whatsapp sent")
     return True
