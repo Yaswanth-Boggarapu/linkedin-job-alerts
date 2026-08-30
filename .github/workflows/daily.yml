@@ -2,8 +2,7 @@ name: Daily job scan
 
 on:
   schedule:
-    - cron: "37 6 * * 1-5"
-    - cron: "37 10 * * 1-5"   # retry window if the 06:37 slot is dropped
+    - cron: "37 5 * * *"
   workflow_dispatch: {}
 
 permissions:
