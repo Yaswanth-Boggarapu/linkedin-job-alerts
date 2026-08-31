@@ -33,6 +33,12 @@ GRADIRELAND_KEYWORDS = [
 ]
 COUNTRY = "Ireland"
 
+# Firecrawl-backed boards. One page = one credit; the free plan gives 1,000 a
+# month, so this costs roughly 180/month and leaves plenty of headroom.
+# Keep these single words: both sites use them as URL slugs.
+FIRECRAWL_GLASSDOOR = ["data", "analytics", "machine-learning"]
+FIRECRAWL_JOBS_IE = ["data", "analyst", "software"]
+
 RESULTS_PER_QUERY = 40
 HOURS_OLD = 26          # slight overlap with the daily cron; dedupe handles it
 DELAY_BETWEEN_QUERIES = 4
