@@ -71,7 +71,7 @@ def collect():
     if config.USE_GRADIRELAND:
         for role in config.ROLES:
             try:
-                found = gradireland.fetch(role, hours_old=config.HOURS_OLD)
+                found = gradireland.fetch(role, hours_old=config.GRADIRELAND_HOURS)
                 jobs.extend(found)
                 log.info("gradireland/%s -> %d", role, len(found))
             except Exception as exc:
