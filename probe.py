@@ -1,36 +1,59 @@
-"""Run the real adapter and count losses at each stage."""
-import config, gradireland, scan
-OUT=[]
+"""Can Firecrawl reach what the runner can't, and is the output parseable?
+
+Tests jobs.ie (read-timed out from CI) and glassdoor.ie (403 from CI).
+Reports credits used so we know the real cost per run.
+"""
+import json, os, re, requests
+
+KEY = os.environ["FIRECRAWL_KEY"]
+API = "https://api.firecrawl.dev/v2/scrape"
+OUT = []
 def say(*p):
     l=" ".join(str(x) for x in p); print(l); OUT.append(l)
 
-say("## adapter run\n")
-say(f"USE_GRADIRELAND={config.USE_GRADIRELAND} GRADIRELAND_HOURS={config.GRADIRELAND_HOURS}\n")
-
-total=0
-for role in config.ROLES:
+def credits():
     try:
-        rows = gradireland.fetch(role, hours_old=config.GRADIRELAND_HOURS)
-        total += len(rows)
-        say(f"- {role!r} -> {len(rows)} kept")
-        for r in rows[:3]:
-            say(f"    {r['title'][:60]!r} | {r['company'][:28]!r} | {r['location'][:30]!r} | {r['date_posted']}")
-        # how many would the title filter then drop?
-        dropped=[r['title'] for r in rows if scan._excluded(r['title'])]
-        if dropped:
-            say(f"    title-filter would drop {len(dropped)}: {dropped[:4]}")
+        r = requests.get("https://api.firecrawl.dev/v2/team/credit-usage",
+                         headers={"Authorization": f"Bearer {KEY}"}, timeout=20)
+        return r.json()
+    except Exception as e:
+        return f"lookup failed: {e}"
+
+say("## Firecrawl probe\n")
+say(f"- credits before: {json.dumps(credits())[:200]}\n")
+
+TARGETS = [
+    ("jobs.ie search",   "https://www.jobs.ie/jobs?q=data"),
+    ("jobs.ie home",     "https://www.jobs.ie/"),
+    ("glassdoor.ie",     "https://www.glassdoor.ie/Job/ireland-data-jobs-SRCH_IL.0,7_IN70_KO8,12.htm"),
+]
+
+for label, url in TARGETS:
+    say(f"### {label}\n`{url}`\n")
+    try:
+        r = requests.post(API,
+            headers={"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"},
+            json={"url": url, "formats": ["markdown"], "onlyMainContent": True,
+                  "timeout": 45000},
+            timeout=90)
+        say(f"- HTTP {r.status_code}")
+        data = r.json()
+        if not data.get("success"):
+            say(f"- not successful: {json.dumps(data)[:400]}")
+            continue
+        md = (data.get("data") or {}).get("markdown") or ""
+        meta = (data.get("data") or {}).get("metadata") or {}
+        say(f"- statusCode={meta.get('statusCode')}, markdown {len(md)} chars")
+        say(f"- title: {meta.get('title')!r}")
+        # how job-like is it?
+        links = re.findall(r'\[([^\]]{5,90})\]\((https?://[^\)]+)\)', md)
+        joby = [(t, u) for t, u in links if re.search(r'/job', u, re.I)]
+        say(f"- links: {len(links)}, job-ish links: {len(joby)}")
+        for t, u in joby[:6]:
+            say(f"    - {t[:60]!r} -> {u[:80]}")
+        say("\n- first 700 chars of markdown:\n```\n" + md[:700] + "\n```\n")
     except Exception as exc:
-        import traceback
-        say(f"- {role!r} -> EXCEPTION {type(exc).__name__}: {exc}")
-        say("```\n"+traceback.format_exc()+"```")
+        say(f"- FAILED {type(exc).__name__}: {exc}\n")
 
-say(f"\n**total kept across roles: {total}**")
-
-# what does a wide-open window give?
-try:
-    wide = gradireland.fetch("data", hours_old=24*365)
-    say(f"\n- sanity: 'data' with a 1-year window -> {len(wide)} rows")
-except Exception as exc:
-    say(f"\n- sanity failed: {exc}")
-
+say(f"\n- credits after: {json.dumps(credits())[:200]}")
 open("probe-result.md","w").write("\n".join(OUT))
