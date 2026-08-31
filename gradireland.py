@@ -108,33 +108,51 @@ def _normalise(doc):
     }
 
 
-def fetch(keyword, hours_old=720, limit=60, timeout=30):
-    """Return a list of job dicts for one keyword.
-
-    The default window is deliberately wide (30 days). gradireland postings sit
-    open for months: of 209 sampled, none were under a day old and only four
-    were under a week. Dedupe means each job is still only reported once, so a
-    wide window just means "anything not seen before".
-    """
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_old)
-
+def _page(keyword, limit, offset, timeout):
     resp = requests.post(URL, headers=HEADERS,
-                         json=_payload(keyword, limit), timeout=timeout)
+                         json=_payload(keyword, limit, offset), timeout=timeout)
     resp.raise_for_status()
-    search = resp.json().get("search") or {}
-    docs = search.get("documents") or []
+    return resp.json().get("search") or {}
 
-    out, dropped_region, dropped_age = [], 0, 0
-    for doc in docs:
-        if not _in_ireland(doc):
-            dropped_region += 1
-            continue
-        if not _recent(doc, cutoff):
-            dropped_age += 1
-            continue
-        out.append(_normalise(doc))
 
-    log.info("gradireland/%s -> %d kept (%d non-IE, %d old, %d total available)",
-             keyword, len(out), dropped_region, dropped_age,
-             search.get("result_count", 0))
+def fetch(keywords, max_pages=10, page_size=60, timeout=30):
+    """Return Irish jobs whose title matches any of `keywords`.
+
+    gradireland is small (a few hundred live opportunities), and its search
+    treats a multi-word key as a strict match, so "data engineer" returns
+    almost nothing while "data" returns 130. Rather than fight that, this
+    walks the whole live catalogue once and matches titles locally.
+
+    There is no age filter: the API query already excludes postings whose
+    application deadline has passed, and cross-run dedupe means anything
+    already reported is never sent twice. Postings here sit open for months,
+    so filtering on age would discard nearly everything.
+    """
+    needles = [k.lower() for k in keywords]
+    out, seen, offset = [], set(), 0
+
+    for _ in range(max_pages):
+        search = _page("", page_size, offset, timeout)
+        docs = search.get("documents") or []
+        if not docs:
+            break
+
+        for doc in docs:
+            if not _in_ireland(doc):
+                continue
+            title = (doc.get("title") or "").lower()
+            if not any(n in title for n in needles):
+                continue
+            row = _normalise(doc)
+            if row["id"] in seen:
+                continue
+            seen.add(row["id"])
+            out.append(row)
+
+        offset += len(docs)
+        if offset >= search.get("result_count", 0):
+            break
+
+    log.info("gradireland -> %d matching Irish roles from %d scanned",
+             len(out), offset)
     return out
