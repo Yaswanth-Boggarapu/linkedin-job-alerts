@@ -12,6 +12,7 @@ from jobspy import scrape_jobs
 
 import config
 import experience
+import firecrawl_source
 import gradireland
 
 log = logging.getLogger(__name__)
@@ -76,6 +77,21 @@ def collect():
         except Exception as exc:
             failures.append("gradireland")
             log.warning("gradireland failed: %s", exc)
+
+    # Boards that block CI runners directly go via Firecrawl's proxy layer.
+    for label, fn, keywords in (
+        ("glassdoor", firecrawl_source.fetch_glassdoor, config.FIRECRAWL_GLASSDOOR),
+        ("jobs.ie", firecrawl_source.fetch_jobs_ie, config.FIRECRAWL_JOBS_IE),
+    ):
+        for kw in keywords:
+            try:
+                found = fn(kw)
+                jobs.extend(found)
+                log.info("%s/%s -> %d", label, kw, len(found))
+            except Exception as exc:
+                failures.append(f"{label}/{kw}")
+                log.warning("%s/%s failed: %s", label, kw, exc)
+            time.sleep(2)
 
     kept, seen_in_run = [], set()
     for job in jobs:
