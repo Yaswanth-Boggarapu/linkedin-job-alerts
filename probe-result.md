@@ -1,92 +1,46 @@
-## Field names (3 docs, result_count=130)
+- keyword 'data': result_count=130, returned=60
+- keyword 'machine learning': result_count=18, returned=18
+- keyword 'engineer': result_count=166, returned=60
+- keyword 'analyst': result_count=11, returned=11
+- keyword '': result_count=444, returned=60
 
+## distinct regions
 ```
-applicationDeadline                int    1794355200
-applicationEmail                   str    campus@quantbot.com
-applicationOpen                    bool   True
-applicationUrl                     str    https://www.quantbot.com/careers/?gh_jid=4299858009
-asyncContent                       bool   True
-body                               str    <p>Quantbot Technologies is a leading global quantitative investment firm deploying system…
-createdAt                          str    2026-08-14T08:31:07Z
-educationProvider                  dict   {'asyncContent': True, 'thumbnailImage': None, 'featuredImage': None, 'headlineImage': Non…
-featured                           bool   False
-featuredImage                      NoneType None
-femalePercentage                   str    
-foundedYear                        str    
-freeJob                            bool   True
-graduateImage                      NoneType None
-graduatePositions                  str    
-headlineImage                      NoneType None
-logo                               NoneType None
-nid                                int    236011
-organisation                       dict   {'asyncContent': True, 'thumbnailImage': None, 'featuredImage': None, 'headlineImage': Non…
-path                               str    /jobs/data-trading-analyst-summer-internship-2027-london-236011
-preregister                        bool   False
-promoted                           bool   False
-regions                            list   ['England', 'Europe']
-salary                             dict   {'currency': 'EUR'}
-sourceOrganisationName             str    Quantbot Technologies Ltd
-thumbnailImage                     NoneType None
-title                              str    Data Trading Analyst Summer Internship - 2027 [London]
-type                               str    opportunity
-updatedAt                          str    2026-08-26T13:12:39Z
-uuid                               str    c4e4620a-d348-4a0f-ba55-11f2a75bc37f
-```
-
-## Second doc, body stripped
-```json
-{
-  "type": "opportunity",
-  "title": "Data and AI Engineer - Clear Strategy, Dun Laoghaire (Hybrid)",
-  "path": "/jobs/data-and-ai-engineer-clear-strategy-dun-laoghaire-hybrid-221136",
-  "nid": 221136,
-  "uuid": "9b15a89e-e2e4-4dd6-8e55-324713b5d08d",
-  "asyncContent": true,
-  "featured": false,
-  "promoted": false,
-  "logo": null,
-  "graduateImage": null,
-  "organisation": {
-    "asyncContent": true,
-    "thumbnailImage": null,
-    "featuredImage": null,
-    "headlineImage": null,
-    "logo": null,
-    "femalePercentage": "",
-    "foundedYear": "",
-    "graduatePositions": ""
-  },
-  "educationProvider": {
-    "asyncContent": true,
-    "thumbnailImage": null,
-    "featuredImage": null,
-    "headlineImage": null,
-    "logo": null
-  },
-  "salary": {
-    "currency": "EUR"
-  },
-  "thumbnailImage": null,
-  "featuredImage": null,
-  "headlineImage": null,
-  "applicationDeadline": 1788825600,
-  "applicationUrl": "https://www.clearstrategy.ie/careers/data-it-engineer",
-  "applicationEmail": "careers@clearstrategy.ie",
-  "applicationOpen": true,
-  "preregister": false,
-  "sourceOrganisationName": "Clear Strategy",
-  "femalePercentage": "",
-  "foundedYear": "",
-  "graduatePositions": "",
-  "sectors": [
-    "Engineering"
-  ],
-  "freeJob": true,
-  "createdAt": "2026-03-12T16:47:51Z",
-  "updatedAt": "2026-04-30T08:30:33Z"
-}
+   70  Europe
+   63  Ireland
+   34  County Dublin
+   12  County Galway
+   12  County Limerick
+    9  County Kildare
+    8  County Tipperary
+    7  County Cork
+    6  England
+    4  County Mayo
+    4  County Louth
+    4  County Meath
+    4  County Waterford
+    4  County Clare
+    3  County Wexford
+    3  Northern Ireland
+    3  County Offaly
+    2  UK
+    2  County Cavan
+    2  County Kilkenny
+    2  County Kerry
+    1  Belfast
+    1  County Carlow
+    1  County Laois
+    1  County Longford
+    1  County Monaghan
+    1  County Roscommon
+    1  County Wicklow
 ```
 
-- sort [{"field": "last_published", "direction": "DESC"}] -> HTTP 400, count=None
-
-- sort [{"name": "last_published", "order": "DESC"}] -> HTTP 200, count=130
+## age of postings (days since createdAt)
+```
+count: 209
+min: 4  median: 83  max: 795
+posted within 1 day: 0
+within 7 days: 4
+within 30 days: 43
+```
