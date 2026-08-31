@@ -20,6 +20,7 @@ SITE_NAMES = {
     "glassdoor": "Glassdoor",
     "google": "Google",
     "gradireland": "gradireland",
+    "jobs_ie": "jobs.ie",
     "zip_recruiter": "ZipRecruiter",
 }
 
