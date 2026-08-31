@@ -16,7 +16,11 @@ ROLES = [
 # One location keeps the query count low enough to add more boards.
 LOCATIONS = ["Ireland"]
 
-SITES = ["linkedin", "indeed", "glassdoor", "google"]
+# Only boards that actually respond from a GitHub Actions runner.
+# Glassdoor returns 403 on its location autocomplete and Google Jobs is
+# disabled in the EU, so both were dropped after probing rather than left
+# in to burn ~40s a run returning nothing. They need a proxy layer.
+SITES = ["linkedin", "indeed"]
 COUNTRY = "Ireland"
 
 RESULTS_PER_QUERY = 40
