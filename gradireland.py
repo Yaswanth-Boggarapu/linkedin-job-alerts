@@ -31,13 +31,15 @@ HEADERS = {
     ),
 }
 
-# regions values that count as Ireland. "Europe" alone is not enough: the
-# London internship in the sample carried ['England', 'Europe'].
-IRISH_REGIONS = {
-    "ireland", "republic of ireland", "northern ireland", "all ireland",
-    "leinster", "munster", "connacht", "ulster", "dublin", "cork",
-    "galway", "limerick", "waterford",
-}
+# Real region values from the API are "Ireland" or "County Dublin",
+# "County Galway" and so on. "Europe" alone is not enough: the London
+# internship in the sample carried ['England', 'Europe'].
+IRISH_REGIONS = {"ireland", "republic of ireland", "all ireland"}
+
+# Northern Ireland is UK jurisdiction, so a role there needs UK right to work
+# rather than Irish. Off by default; flip if that changes.
+INCLUDE_NORTHERN_IRELAND = False
+NI_REGIONS = {"northern ireland", "belfast", "derry", "londonderry"}
 
 
 def _payload(keyword, limit, offset=0):
@@ -68,8 +70,16 @@ def _payload(keyword, limit, offset=0):
 
 
 def _in_ireland(doc):
-    regions = doc.get("regions") or []
-    return any(str(r).strip().lower() in IRISH_REGIONS for r in regions)
+    for raw in doc.get("regions") or []:
+        region = str(raw).strip().lower()
+        if region in NI_REGIONS:
+            if INCLUDE_NORTHERN_IRELAND:
+                return True
+            continue
+        # Counties come through as "County Dublin", "County Galway", ...
+        if region in IRISH_REGIONS or region.startswith("county "):
+            return True
+    return False
 
 
 def _recent(doc, cutoff):
@@ -98,8 +108,14 @@ def _normalise(doc):
     }
 
 
-def fetch(keyword, hours_old=26, limit=50, timeout=30):
-    """Return a list of job dicts for one keyword."""
+def fetch(keyword, hours_old=720, limit=60, timeout=30):
+    """Return a list of job dicts for one keyword.
+
+    The default window is deliberately wide (30 days). gradireland postings sit
+    open for months: of 209 sampled, none were under a day old and only four
+    were under a week. Dedupe means each job is still only reported once, so a
+    wide window just means "anything not seen before".
+    """
     cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_old)
 
     resp = requests.post(URL, headers=HEADERS,
