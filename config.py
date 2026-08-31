@@ -24,6 +24,9 @@ SITES = ["linkedin", "indeed"]
 
 # gradireland has its own adapter rather than going through JobSpy.
 USE_GRADIRELAND = True
+# gradireland moves far slower than LinkedIn: postings stay open for months,
+# so a 26-hour window matches nothing. Dedupe stops repeats regardless.
+GRADIRELAND_HOURS = 720   # 30 days
 COUNTRY = "Ireland"
 
 RESULTS_PER_QUERY = 40
