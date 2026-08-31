@@ -1,19 +1,92 @@
-## gradireland search API
+## Field names (3 docs, result_count=130)
 
-- no cookies -> HTTP 200, 22906 bytes
-- top-level keys: ['search']
-```json
-{
-  "search": {
-    "result_count": 130,
-    "documents": [
-      {
-        "type": "opportunity",
-        "title": "Data Trading Analyst Summer Internship - 2027 [London]",
-        "path": "/jobs/data-trading-analyst-summer-internship-2027-london-236011",
-        "nid": 236011,
-        "uuid": "c4e4620a-d348-4a0f-ba55-11f2a75bc37f",
-        "body": "<p>Quantbot Technologies is a leading global quantitative investment firm deploying systematic strategies across asset classes. At the heart of our approach is large-scale research powered by advanced computing infrastructure and petabytes of comprehensive market and historical data. We combine rigorous scientific methods with modern statistical and machine learning techniques to discover, test, and implement novel investment ideas.<br>As a Data Trading Analyst Intern, you\u2019ll have the opportunity to work with Quantbot\u2019s Data Trading Lab team, a technical group specializing in trading operations, data science, and problem-solving. You will evaluate new datasets, and utilize our advanced cloud environment to write and maintain Python scripts. You will work directly with the London team to process and assess new datasets and take part in developing new tools and infrastructure at Quantbot.<br>Responsibilities<br>\u2022 Conduct exploratory data analysis on alternative datasets to explore datasets for potentially predictive signals\u2022 Perform statistical analysis including correlation studies, regression analysis, and time-series modeling\u2022 Build ETL processes to integrate new data sources with existing research infrastructure\u2022 Develop data quality monitoring tools to detect anomalies and ensure dataset integrity\u2022 Optimize existing scripts for performance and scalability\u2022 Build internal Python libraries or tools to standardize common analytical workflows across the team<br>Requirements<br>\u2022 Enrollment in a Bachelor\u2019s or Master\u2019s program in Computer Science or Data Science related field. Students in their final year are encouraged to apply.\u2022 Proficiency in Python and C++\u2022 Experience with Linux or UNIX environments\u2022 Knowledge of SQL queries and any relational database systems is preferred\u2022 Finance knowledge is beneficial but not essential<br>Program Details<br>This 10 to 12-week program runs from June to August, offering training and support with a dedicated mentor. Successful interns may receive full-time job offers.<br>Our Culture<br>Join a global t
+```
+applicationDeadline                int    1794355200
+applicationEmail                   str    campus@quantbot.com
+applicationOpen                    bool   True
+applicationUrl                     str    https://www.quantbot.com/careers/?gh_jid=4299858009
+asyncContent                       bool   True
+body                               str    <p>Quantbot Technologies is a leading global quantitative investment firm deploying system…
+createdAt                          str    2026-08-14T08:31:07Z
+educationProvider                  dict   {'asyncContent': True, 'thumbnailImage': None, 'featuredImage': None, 'headlineImage': Non…
+featured                           bool   False
+featuredImage                      NoneType None
+femalePercentage                   str    
+foundedYear                        str    
+freeJob                            bool   True
+graduateImage                      NoneType None
+graduatePositions                  str    
+headlineImage                      NoneType None
+logo                               NoneType None
+nid                                int    236011
+organisation                       dict   {'asyncContent': True, 'thumbnailImage': None, 'featuredImage': None, 'headlineImage': Non…
+path                               str    /jobs/data-trading-analyst-summer-internship-2027-london-236011
+preregister                        bool   False
+promoted                           bool   False
+regions                            list   ['England', 'Europe']
+salary                             dict   {'currency': 'EUR'}
+sourceOrganisationName             str    Quantbot Technologies Ltd
+thumbnailImage                     NoneType None
+title                              str    Data Trading Analyst Summer Internship - 2027 [London]
+type                               str    opportunity
+updatedAt                          str    2026-08-26T13:12:39Z
+uuid                               str    c4e4620a-d348-4a0f-ba55-11f2a75bc37f
 ```
 
-- without x-host -> HTTP 200
+## Second doc, body stripped
+```json
+{
+  "type": "opportunity",
+  "title": "Data and AI Engineer - Clear Strategy, Dun Laoghaire (Hybrid)",
+  "path": "/jobs/data-and-ai-engineer-clear-strategy-dun-laoghaire-hybrid-221136",
+  "nid": 221136,
+  "uuid": "9b15a89e-e2e4-4dd6-8e55-324713b5d08d",
+  "asyncContent": true,
+  "featured": false,
+  "promoted": false,
+  "logo": null,
+  "graduateImage": null,
+  "organisation": {
+    "asyncContent": true,
+    "thumbnailImage": null,
+    "featuredImage": null,
+    "headlineImage": null,
+    "logo": null,
+    "femalePercentage": "",
+    "foundedYear": "",
+    "graduatePositions": ""
+  },
+  "educationProvider": {
+    "asyncContent": true,
+    "thumbnailImage": null,
+    "featuredImage": null,
+    "headlineImage": null,
+    "logo": null
+  },
+  "salary": {
+    "currency": "EUR"
+  },
+  "thumbnailImage": null,
+  "featuredImage": null,
+  "headlineImage": null,
+  "applicationDeadline": 1788825600,
+  "applicationUrl": "https://www.clearstrategy.ie/careers/data-it-engineer",
+  "applicationEmail": "careers@clearstrategy.ie",
+  "applicationOpen": true,
+  "preregister": false,
+  "sourceOrganisationName": "Clear Strategy",
+  "femalePercentage": "",
+  "foundedYear": "",
+  "graduatePositions": "",
+  "sectors": [
+    "Engineering"
+  ],
+  "freeJob": true,
+  "createdAt": "2026-03-12T16:47:51Z",
+  "updatedAt": "2026-04-30T08:30:33Z"
+}
+```
+
+- sort [{"field": "last_published", "direction": "DESC"}] -> HTTP 400, count=None
+
+- sort [{"name": "last_published", "order": "DESC"}] -> HTTP 200, count=130
