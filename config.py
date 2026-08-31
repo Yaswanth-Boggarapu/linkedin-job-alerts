@@ -24,9 +24,13 @@ SITES = ["linkedin", "indeed"]
 
 # gradireland has its own adapter rather than going through JobSpy.
 USE_GRADIRELAND = True
-# gradireland moves far slower than LinkedIn: postings stay open for months,
-# so a 26-hour window matches nothing. Dedupe stops repeats regardless.
-GRADIRELAND_HOURS = 720   # 30 days
+# gradireland's search matches multi-word keys strictly, so "data engineer"
+# returns almost nothing. The adapter walks the whole live catalogue instead
+# and matches these against the title.
+GRADIRELAND_KEYWORDS = [
+    "data", "machine learning", "ai ", "artificial intelligence",
+    "analyst", "analytics", "python", "software engineer",
+]
 COUNTRY = "Ireland"
 
 RESULTS_PER_QUERY = 40
