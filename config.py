@@ -21,6 +21,9 @@ LOCATIONS = ["Ireland"]
 # disabled in the EU, so both were dropped after probing rather than left
 # in to burn ~40s a run returning nothing. They need a proxy layer.
 SITES = ["linkedin", "indeed"]
+
+# gradireland has its own adapter rather than going through JobSpy.
+USE_GRADIRELAND = True
 COUNTRY = "Ireland"
 
 RESULTS_PER_QUERY = 40
