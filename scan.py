@@ -69,15 +69,13 @@ def collect():
 
     # gradireland is not a JobSpy board: it has its own public JSON API.
     if config.USE_GRADIRELAND:
-        for role in config.ROLES:
-            try:
-                found = gradireland.fetch(role, hours_old=config.GRADIRELAND_HOURS)
-                jobs.extend(found)
-                log.info("gradireland/%s -> %d", role, len(found))
-            except Exception as exc:
-                failures.append(f"gradireland/{role}")
-                log.warning("gradireland/%s failed: %s", role, exc)
-            time.sleep(config.DELAY_BETWEEN_QUERIES)
+        try:
+            found = gradireland.fetch(config.GRADIRELAND_KEYWORDS)
+            jobs.extend(found)
+            log.info("gradireland -> %d", len(found))
+        except Exception as exc:
+            failures.append("gradireland")
+            log.warning("gradireland failed: %s", exc)
 
     kept, seen_in_run = [], set()
     for job in jobs:
