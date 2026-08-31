@@ -1,52 +1,36 @@
-"""What region values does gradireland actually use, and how fresh is its stock?"""
-import json, requests
-from collections import Counter
-from datetime import datetime, timezone
-
-URL="https://gradireland.com/ext/svc/inferno-search-service-1-0/search"
+"""Run the real adapter and count losses at each stage."""
+import config, gradireland, scan
 OUT=[]
 def say(*p):
     l=" ".join(str(x) for x in p); print(l); OUT.append(l)
 
-H={"accept":"application/json, text/plain, */*","content-type":"application/json",
-   "origin":"https://gradireland.com","referer":"https://gradireland.com/search/jobs",
-   "user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0 Safari/537.36"}
+say("## adapter run\n")
+say(f"USE_GRADIRELAND={config.USE_GRADIRELAND} GRADIRELAND_HOURS={config.GRADIRELAND_HOURS}\n")
 
-def payload(kw, limit):
-    return {"fields":None,"keys":[kw],"groupBy":None,
-      "conditionGroup":{"conjunction":"AND","groups":[{"conjunction":"OR",
-        "conditions":[{"name":"application_deadline_date","value":["0","NOW"],"operator":"NOT BETWEEN"}],
-        "tags":["facet:application_deadline_date"]}]},
-      "facets":[],"sort":None,
-      "conditions":[{"name":"type","value":"opportunity","operator":"="}],
-      "limit":limit,"offset":0,"includePromoted":False}
+total=0
+for role in config.ROLES:
+    try:
+        rows = gradireland.fetch(role, hours_old=config.GRADIRELAND_HOURS)
+        total += len(rows)
+        say(f"- {role!r} -> {len(rows)} kept")
+        for r in rows[:3]:
+            say(f"    {r['title'][:60]!r} | {r['company'][:28]!r} | {r['location'][:30]!r} | {r['date_posted']}")
+        # how many would the title filter then drop?
+        dropped=[r['title'] for r in rows if scan._excluded(r['title'])]
+        if dropped:
+            say(f"    title-filter would drop {len(dropped)}: {dropped[:4]}")
+    except Exception as exc:
+        import traceback
+        say(f"- {role!r} -> EXCEPTION {type(exc).__name__}: {exc}")
+        say("```\n"+traceback.format_exc()+"```")
 
-regions=Counter(); ages=[]
-for kw in ["data","machine learning","engineer","analyst",""]:
-    r=requests.post(URL,headers=H,json=payload(kw,60),timeout=30)
-    docs=r.json()["search"]["documents"]
-    say(f"- keyword {kw!r}: result_count={r.json()['search']['result_count']}, returned={len(docs)}")
-    for d in docs:
-        for reg in (d.get("regions") or []):
-            regions[str(reg)]+=1
-        c=d.get("createdAt")
-        if c:
-            try:
-                age=(datetime.now(timezone.utc)-datetime.fromisoformat(c.replace("Z","+00:00"))).days
-                ages.append(age)
-            except Exception: pass
+say(f"\n**total kept across roles: {total}**")
 
-say("\n## distinct regions\n```")
-for k,v in regions.most_common(40): say(f"{v:5}  {k}")
-say("```")
+# what does a wide-open window give?
+try:
+    wide = gradireland.fetch("data", hours_old=24*365)
+    say(f"\n- sanity: 'data' with a 1-year window -> {len(wide)} rows")
+except Exception as exc:
+    say(f"\n- sanity failed: {exc}")
 
-say("\n## age of postings (days since createdAt)\n```")
-say("count:", len(ages))
-if ages:
-    ages.sort()
-    say("min:",ages[0]," median:",ages[len(ages)//2]," max:",ages[-1])
-    say("posted within 1 day:", sum(1 for a in ages if a<=1))
-    say("within 7 days:", sum(1 for a in ages if a<=7))
-    say("within 30 days:", sum(1 for a in ages if a<=30))
-say("```")
 open("probe-result.md","w").write("\n".join(OUT))
