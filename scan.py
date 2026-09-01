@@ -54,6 +54,7 @@ def _one(site, role, location):
 
 def collect():
     jobs, failures = [], []
+    fetched = {}          # site -> rows returned before dedupe
 
     for site in config.SITES:
         for role in config.ROLES:
@@ -62,9 +63,10 @@ def collect():
                 try:
                     found = _one(site, role, location)
                     jobs.extend(found)
+                    fetched[site] = fetched.get(site, 0) + len(found)
                     log.info("%s -> %d", label, len(found))
                 except Exception as exc:
-                    failures.append(label)
+                    failures.append(f"{label}: {type(exc).__name__}")
                     log.warning("%s failed: %s", label, exc)
                 time.sleep(config.DELAY_BETWEEN_QUERIES)
 
@@ -73,9 +75,10 @@ def collect():
         try:
             found = gradireland.fetch(config.GRADIRELAND_KEYWORDS)
             jobs.extend(found)
+            fetched["gradireland"] = len(found)
             log.info("gradireland -> %d", len(found))
         except Exception as exc:
-            failures.append("gradireland")
+            failures.append(f"gradireland: {type(exc).__name__}")
             log.warning("gradireland failed: %s", exc)
 
     # Boards that block CI runners directly go via Firecrawl's proxy layer.
@@ -87,9 +90,11 @@ def collect():
             try:
                 found = fn(kw)
                 jobs.extend(found)
+                key = found[0]["site"] if found else label
+                fetched[key] = fetched.get(key, 0) + len(found)
                 log.info("%s/%s -> %d", label, kw, len(found))
             except Exception as exc:
-                failures.append(f"{label}/{kw}")
+                failures.append(f"{label}/{kw}: {type(exc).__name__}")
                 log.warning("%s/%s failed: %s", label, kw, exc)
             time.sleep(2)
 
@@ -110,6 +115,6 @@ def collect():
         job.pop("job_level", None)
         kept.append(job)
 
-    log.info("collected %d unique after filters (%d queries failed)",
-             len(kept), len(failures))
-    return kept, failures
+    log.info("collected %d unique after filters (%d queries failed): %s",
+             len(kept), len(failures), fetched)
+    return kept, failures, fetched
