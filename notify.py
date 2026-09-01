@@ -48,7 +48,41 @@ def _rows(jobs):
     return "".join(out)
 
 
-def _html(jobs, failures, wa_ok):
+def _sources_table(jobs, fetched, failures):
+    """Per-source health, so a broken scraper is visible at a glance."""
+    new_by_site = {}
+    for job in jobs:
+        site = job.get("site")
+        new_by_site[site] = new_by_site.get(site, 0) + 1
+
+    failed_sites = {f.split("/")[0].split(":")[0] for f in failures}
+
+    rows = []
+    for site in sorted(set(fetched) | set(new_by_site) | failed_sites):
+        got = fetched.get(site, 0)
+        new = new_by_site.get(site, 0)
+        if site in failed_sites and not got:
+            status, colour = "failed", "#c00"
+        elif got == 0:
+            status, colour = "no results", "#b26a00"
+        else:
+            status, colour = "ok", "#1a7f37"
+        rows.append(
+            f"<tr><td style='{TD}'>{SITE_NAMES.get(site, site)}</td>"
+            f"<td style='{TD}'>{got}</td><td style='{TD}'>{new}</td>"
+            f"<td style='{TD};color:{colour}'>{status}</td></tr>"
+        )
+
+    return (
+        f"<h3 style='font-size:14px;margin:24px 0 6px'>Sources this run</h3>"
+        f"<table style='border-collapse:collapse;font-size:12px'>"
+        f"<tr><th style='{TH}'>Source</th><th style='{TH}'>Fetched</th>"
+        f"<th style='{TH}'>New</th><th style='{TH}'>Status</th></tr>"
+        f"{''.join(rows)}</table>"
+    )
+
+
+def _html(jobs, failures, wa_ok, fetched=None):
     note = ""
     if failures:
         note = (f"<p style='color:#888;font-size:12px'>{len(failures)} queries "
@@ -86,17 +120,17 @@ def _plain(jobs):
     return "\n".join(lines) or "No new roles today."
 
 
-def send_email(jobs, failures, wa_ok=False):
+def send_email(jobs, failures, wa_ok=False, fetched=None):
     if not (config.SMTP_USER and config.SMTP_PASS and config.DIGEST_TO):
         log.warning("email not configured, skipping")
         return False
 
     msg = EmailMessage()
-    msg["Subject"] = f"{len(jobs)} new roles"
+    msg["Subject"] = f"{len(jobs)} new roles" if jobs else "No new roles today"
     msg["From"] = config.SMTP_USER
     msg["To"] = config.DIGEST_TO
     msg.set_content(_plain(jobs))
-    msg.add_alternative(_html(jobs, failures, wa_ok), subtype="html")
+    msg.add_alternative(_html(jobs, failures, wa_ok, fetched), subtype="html")
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(config.SMTP_USER, config.SMTP_PASS)
