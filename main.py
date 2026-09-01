@@ -9,7 +9,7 @@ import seen_store
 
 
 def run():
-    jobs, failures = scan.collect()
+    jobs, failures, fetched = scan.collect()
 
     state = seen_store.load()
     fresh, stats = seen_store.filter_new(jobs, state)
@@ -18,7 +18,10 @@ def run():
     logging.info("stats: %s", stats)
 
     if not fresh:
+        # Still send, so a silent source failure is visible rather than
+        # looking identical to a genuinely quiet day.
         logging.info("nothing new today")
+        notify.send_email([], failures, False, fetched)
         return 0
 
     # Most junior first; reposts sink within their tier; then company for
@@ -30,7 +33,7 @@ def run():
     ))
 
     wa_ok = notify.send_whatsapp(fresh)
-    notify.send_email(fresh, failures, wa_ok)
+    notify.send_email(fresh, failures, wa_ok, fetched)
     return 0
 
 
