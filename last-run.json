@@ -1,19 +1,19 @@
 {
-  "at": "2026-09-02T09:55:56+00:00",
+  "at": "2026-09-03T10:07:19+00:00",
   "dedupe": {
-    "dup_content": 1,
-    "dup_id": 129,
-    "new": 22,
+    "dup_content": 9,
+    "dup_id": 46,
+    "new": 91,
     "repost": 0,
-    "total": 152
+    "total": 146
   },
   "failures": [],
   "fetched": {
     "glassdoor": 90,
     "gradireland": 6,
-    "indeed": 94,
+    "indeed": 86,
     "jobs.ie": 0,
-    "linkedin": 166
+    "linkedin": 157
   },
-  "new": 22
+  "new": 91
 }
