@@ -99,11 +99,16 @@ def collect():
             time.sleep(2)
 
     kept, seen_in_run = [], set()
+    # Two filters run before cross-run dedupe and used to be invisible:
+    # the title exclusion list, and duplicates within a single run.
+    dropped = {"by_title": 0, "dup_in_run": 0}
     for job in jobs:
         if _excluded(job.get("title")):
+            dropped["by_title"] += 1
             continue
         key = f"{job.get('site')}:{job.get('id')}"
         if key in seen_in_run:
+            dropped["dup_in_run"] += 1
             continue
         seen_in_run.add(key)
 
@@ -115,6 +120,8 @@ def collect():
         job.pop("job_level", None)
         kept.append(job)
 
-    log.info("collected %d unique after filters (%d queries failed): %s",
-             len(kept), len(failures), fetched)
+    fetched["_dropped"] = dropped
+    log.info("fetched %d, kept %d (dropped %s), %d queries failed",
+             sum(v for k, v in fetched.items() if k != "_dropped"),
+             len(kept), dropped, len(failures))
     return kept, failures, fetched
