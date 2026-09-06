@@ -1,30 +1,39 @@
-"""What do jobs.ie posting links actually look like?"""
+"""Last attempt at jobs.ie: full content + wait for JS listings to render."""
 import json, os, re, requests
 KEY=os.environ["FIRECRAWL_KEY"]; API="https://api.firecrawl.dev/v2/scrape"
 OUT=[]
 def say(*p):
     l=" ".join(str(x) for x in p); print(l); OUT.append(l)
 
-def scrape(url, ms=75000):
-    r=requests.post(API,headers={"Authorization":f"Bearer {KEY}","Content-Type":"application/json"},
-        json={"url":url,"formats":["markdown"],"onlyMainContent":True,"timeout":ms},timeout=ms/1000+30)
-    return r.json()
+def try_scrape(label, url, **opts):
+    body={"url":url,"formats":["markdown"],"timeout":90000}
+    body.update(opts)
+    try:
+        r=requests.post(API,headers={"Authorization":f"Bearer {KEY}",
+            "Content-Type":"application/json"},json=body,timeout=140)
+        d=r.json()
+        md=(d.get("data") or {}).get("markdown") or ""
+        say(f"### {label}\n- success={d.get('success')} chars={len(md)}")
+        if not d.get("success"):
+            say(f"- error: {str(d.get('error'))[:200]}"); return
+        # individual postings usually carry a numeric id in the path
+        cand=re.findall(r'\[([^\]]{6,110})\]\((https://www\.jobs\.ie/[^\)]*?/\d{5,}[^\)]*)\)', md)
+        say(f"- links with a long numeric id: {len(cand)}")
+        for t,u in cand[:5]: say(f"    {t[:55]!r} -> {u[:85]}")
+        if not cand:
+            from collections import Counter
+            shapes=Counter(re.sub(r'\d+','N',u.replace('https://www.jobs.ie','')).split('?')[0][:50]
+                           for _,u in re.findall(r'\[([^\]]+)\]\((https://www\.jobs\.ie[^\)]+)\)', md))
+            say(f"- shapes: {shapes.most_common(8)}")
+    except Exception as e:
+        say(f"### {label}\n- FAILED {type(e).__name__}: {e}")
+    say("")
 
-d=scrape("https://www.jobs.ie/jobs/data")
-md=(d.get("data") or {}).get("markdown") or ""
-meta=(d.get("data") or {}).get("metadata") or {}
-say(f"## jobs.ie/jobs/data\n- success={d.get('success')} status={meta.get('statusCode')} chars={len(md)}\n")
+try_scrape("full content, no main-only", "https://www.jobs.ie/jobs/data",
+           onlyMainContent=False)
+try_scrape("wait 6s for render", "https://www.jobs.ie/jobs/data",
+           onlyMainContent=False, waitFor=6000)
+try_scrape("dublin facet, waited", "https://www.jobs.ie/jobs/data/in-dublin",
+           onlyMainContent=False, waitFor=6000)
 
-links=re.findall(r'\[([^\]]{3,120})\]\((https?://[^\)]+)\)', md)
-say(f"- total links: {len(links)}")
-from collections import Counter
-pats=Counter()
-for t,u in links:
-    p=re.sub(r'\d+','N',u.replace("https://www.jobs.ie",""))
-    pats[p.split('?')[0][:60]]+=1
-say("\n- url shapes (top 25):\n```")
-for p,c in pats.most_common(25): say(f"{c:4}  {p}")
-say("```")
-
-say("\n- first 1800 chars:\n```\n"+md[:1800]+"\n```")
 open("probe-result.md","w").write("\n".join(OUT))
