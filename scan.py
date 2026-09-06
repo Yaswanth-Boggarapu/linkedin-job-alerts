@@ -5,6 +5,7 @@ exceptional: a run that only gets two of four boards is still a useful run.
 """
 
 import logging
+import re
 import time
 
 import pandas as pd
@@ -21,9 +22,17 @@ KEEP = ["site", "id", "title", "company", "location", "job_url",
         "date_posted", "job_level", "description"]
 
 
+# Word-bounded on purpose. Plain substring matching made "lead" reject
+# "Graduate Leadership Programme" and "staff" reject "Staffing Analyst",
+# which was quietly discarding a third of everything fetched.
+_EXCLUDE_RX = re.compile(
+    r"\b(?:" + "|".join(re.escape(w.strip()) for w in config.TITLE_EXCLUDE) + r")\b",
+    re.I,
+)
+
+
 def _excluded(title):
-    low = (title or "").lower()
-    return any(bad in low for bad in config.TITLE_EXCLUDE)
+    return bool(_EXCLUDE_RX.search(title or ""))
 
 
 def _one(site, role, location):
