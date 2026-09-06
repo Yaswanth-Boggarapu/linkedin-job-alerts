@@ -44,9 +44,12 @@ HOURS_OLD = 26          # slight overlap with the daily cron; dedupe handles it
 DELAY_BETWEEN_QUERIES = 4
 
 # Drop anything whose title matches these before it reaches you.
+# Matched as whole words (see scan._EXCLUDE_RX), so "lead" no longer rejects
+# "Leadership". "architect" was dropped: Data Architect is often a mid-level
+# title in Ireland and worth seeing.
 TITLE_EXCLUDE = [
-    "senior", "staff", "principal", "lead", "manager", "director",
-    "head of", "vp ", "architect",
+    "senior", "snr", "staff", "principal", "lead", "manager",
+    "director", "head", "vp",
 ]
 
 # Secrets come from the environment.
