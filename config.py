@@ -37,7 +37,10 @@ COUNTRY = "Ireland"
 # month, so this costs roughly 180/month and leaves plenty of headroom.
 # Keep these single words: both sites use them as URL slugs.
 FIRECRAWL_GLASSDOOR = ["data", "analytics", "machine-learning"]
-FIRECRAWL_JOBS_IE = ["data", "analyst", "software"]
+# jobs.ie is off. Its /jobs/<term> pages are SEO landing pages: the markup
+# holds location facets and company logos but no linked job titles, so there
+# is nothing stable to parse. Left wired up in case that changes.
+FIRECRAWL_JOBS_IE = []
 
 RESULTS_PER_QUERY = 40
 HOURS_OLD = 26          # slight overlap with the daily cron; dedupe handles it
