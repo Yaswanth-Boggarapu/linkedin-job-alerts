@@ -1,22 +1,22 @@
 {
-  "at": "2026-09-06T07:00:57+00:00",
+  "at": "2026-09-06T09:40:29+00:00",
   "dedupe": {
     "dup_content": 0,
-    "dup_id": 84,
-    "new": 13,
+    "dup_id": 90,
+    "new": 3,
     "repost": 0,
-    "total": 97
+    "total": 93
   },
   "failures": [],
   "fetched": {
     "_dropped": {
-      "by_title": 75,
-      "dup_in_run": 35
+      "by_title": 58,
+      "dup_in_run": 34
     },
     "glassdoor": 90,
     "gradireland": 6,
     "indeed": 6,
-    "linkedin": 105
+    "linkedin": 83
   },
-  "new": 13
+  "new": 3
 }
