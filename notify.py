@@ -58,7 +58,7 @@ def _sources_table(jobs, fetched, failures):
     failed_sites = {f.split("/")[0].split(":")[0] for f in failures}
 
     rows = []
-    sites = (set(fetched) | set(new_by_site) | failed_sites) - {"_dropped"}
+    sites = (set(fetched) | set(new_by_site) | failed_sites) - {"_dropped", "_enrichment"}
     for site in sorted(sites):
         got = fetched.get(site, 0)
         new = new_by_site.get(site, 0)
