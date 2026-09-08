@@ -22,6 +22,19 @@ PRUNE_AFTER_DAYS = 120   # drop stale entries so the file stays small
 _WS = re.compile(r"\s+")
 _NOISE = re.compile(r"\b(inc|ltd|limited|plc|llc|gmbh|group|ireland|eu)\b")
 
+# Boards describe the same place very differently: "Dublin", "County Dublin",
+# "Dublin, County Dublin, Ireland", "South Dublin". Anchoring on a known place
+# name keeps all of those on one fingerprint; positional slicing did not.
+_PLACES = {
+    "dublin", "cork", "galway", "limerick", "waterford", "kilkenny",
+    "carlow", "kildare", "meath", "wicklow", "louth", "wexford", "clare",
+    "kerry", "tipperary", "sligo", "mayo", "donegal", "westmeath",
+    "offaly", "laois", "longford", "leitrim", "roscommon", "cavan",
+    "monaghan", "athlone", "swords", "remote",
+}
+_LOC_NOISE = {"county", "city", "centre", "center", "ireland", "republic",
+              "of", "greater", "area", "north", "south", "east", "west"}
+
 
 def _norm(text):
     text = (text or "").lower()
@@ -30,10 +43,20 @@ def _norm(text):
     return _WS.sub(" ", text).strip()
 
 
+def _place(location):
+    """Reduce a location string to one stable token."""
+    words = _norm(location).split()
+    for word in words:
+        if word in _PLACES:
+            return word
+    meaningful = [w for w in words if w not in _LOC_NOISE]
+    return meaningful[0] if meaningful else ""
+
+
 def content_key(job):
     """Stable across reposts and across job boards."""
-    city = _norm(job.get("location", "")).split()[:2]
-    raw = f"{_norm(job.get('company'))}|{_norm(job.get('title'))}|{' '.join(city)}"
+    raw = (f"{_norm(job.get('company'))}|{_norm(job.get('title'))}"
+           f"|{_place(job.get('location', ''))}")
     return hashlib.sha1(raw.encode()).hexdigest()[:16]
 
 
