@@ -30,6 +30,11 @@ USE_GRADIRELAND = True
 GRADIRELAND_KEYWORDS = [
     "data", "machine learning", "ai ", "artificial intelligence",
     "analyst", "analytics", "python", "software engineer",
+    # It is a graduate board, so the programme words matter as much as the
+    # role words. The catalogue walk is a fixed cost, so more terms are free.
+    "graduate", "intern", "placement", "trainee",
+    "quantitative", "research", "statistic", "modelling",
+    "engineer", "developer", "scientist", "technology",
 ]
 COUNTRY = "Ireland"
 
@@ -64,3 +69,7 @@ WA_TOKEN = os.environ.get("WA_TOKEN", "")
 WA_PHONE_ID = os.environ.get("WA_PHONE_ID", "")
 WA_TO = os.environ.get("WA_TO", "")
 WA_TEMPLATE = os.environ.get("WA_TEMPLATE", "job_digest")
+
+# Fetch descriptions for the handful of jobs that survive dedupe, rather than
+# the few hundred fetched. Also drops links that already 404.
+ENRICH_SHORTLIST = True
