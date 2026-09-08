@@ -5,7 +5,10 @@ import logging
 import sys
 from datetime import datetime, timezone
 
+import config
+import enrich
 import notify
+import notion_source
 import scan
 import seen_store
 
@@ -29,6 +32,14 @@ def _write_run_log(stats, fetched, failures, new_count):
 def run():
     jobs, failures, fetched = scan.collect()
 
+    # Roles already in the Notion tracker never need reporting again.
+    applied = notion_source.applied_keys()
+    if applied:
+        before = len(jobs)
+        jobs = [j for j in jobs if not notion_source.already_applied(j, applied)]
+        logging.info("notion: dropped %d already-applied", before - len(jobs))
+        fetched["_dropped"]["already_applied"] = before - len(jobs)
+
     state = seen_store.load()
     fresh, stats = seen_store.filter_new(jobs, state)
     seen_store.save(state)
@@ -45,6 +56,14 @@ def run():
 
     # Most junior first; reposts sink within their tier; then company for
     # a stable order run to run.
+    if config.ENRICH_SHORTLIST:
+        fresh, enrich_stats = enrich.enrich(fresh)
+        fetched["_enrichment"] = enrich_stats
+        if not fresh:
+            _write_run_log(stats, fetched, failures, 0)
+            notify.send_email([], failures, False, fetched)
+            return 0
+
     fresh.sort(key=lambda j: (
         j.get("exp_rank", 9),
         j.get("is_repost", False),
