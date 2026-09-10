@@ -1,0 +1,492 @@
+[
+ {
+  "n": 1,
+  "company": "Accenture",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Consultancy/AI Labs",
+  "location": "Dublin"
+ },
+ {
+  "n": 2,
+  "company": "Deloitte Ireland",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Consultancy",
+  "location": "Dublin"
+ },
+ {
+  "n": 3,
+  "company": "PwC Ireland",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Consultancy",
+  "location": "Dublin"
+ },
+ {
+  "n": 4,
+  "company": "EY Ireland",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Consultancy",
+  "location": "Dublin"
+ },
+ {
+  "n": 5,
+  "company": "KPMG Ireland",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Consultancy",
+  "location": "Dublin"
+ },
+ {
+  "n": 6,
+  "company": "Amazon (Dublin)",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 7,
+  "company": "Meta (Dublin)",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 8,
+  "company": "Google (Dublin)",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 9,
+  "company": "Microsoft (Dublin)",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 10,
+  "company": "IBM Ireland",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin/Mulhuddart"
+ },
+ {
+  "n": 11,
+  "company": "SAP Ireland",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin/Galway"
+ },
+ {
+  "n": 12,
+  "company": "Workday",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 13,
+  "company": "Intercom",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Scale-up",
+  "location": "Dublin"
+ },
+ {
+  "n": 14,
+  "company": "Stripe",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech/Fintech",
+  "location": "Dublin"
+ },
+ {
+  "n": 15,
+  "company": "LinkedIn",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 16,
+  "company": "Proofpoint",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Cybersecurity",
+  "location": "Dublin"
+ },
+ {
+  "n": 17,
+  "company": "Sonatus",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Edge AI/Automotive",
+  "location": "Dublin"
+ },
+ {
+  "n": 18,
+  "company": "Tether Operations",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Crypto/Fintech",
+  "location": "Dublin"
+ },
+ {
+  "n": 19,
+  "company": "AMD",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Semiconductor",
+  "location": "Dublin"
+ },
+ {
+  "n": 20,
+  "company": "Qualtrics",
+  "tier": "Tier 2 - Scale-up",
+  "category": "SaaS",
+  "location": "Dublin"
+ },
+ {
+  "n": 21,
+  "company": "HubSpot",
+  "tier": "Tier 2 - Scale-up",
+  "category": "SaaS",
+  "location": "Dublin"
+ },
+ {
+  "n": 22,
+  "company": "Zendesk",
+  "tier": "Tier 2 - Scale-up",
+  "category": "SaaS",
+  "location": "Dublin"
+ },
+ {
+  "n": 23,
+  "company": "Docusign",
+  "tier": "Tier 2 - Scale-up",
+  "category": "SaaS",
+  "location": "Dublin"
+ },
+ {
+  "n": 24,
+  "company": "Datadog",
+  "tier": "Tier 2 - Scale-up",
+  "category": "SaaS/Observability",
+  "location": "Dublin"
+ },
+ {
+  "n": 25,
+  "company": "Snyk",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Security",
+  "location": "Dublin"
+ },
+ {
+  "n": 26,
+  "company": "Wayflyer",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Fintech",
+  "location": "Dublin"
+ },
+ {
+  "n": 27,
+  "company": "Fenergo",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Fintech/Regtech",
+  "location": "Dublin"
+ },
+ {
+  "n": 28,
+  "company": "Version 1",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Consultancy",
+  "location": "Dublin"
+ },
+ {
+  "n": 29,
+  "company": "Zalando Ireland",
+  "tier": "Tier 2 - Scale-up",
+  "category": "E-commerce",
+  "location": "Dublin tech hub"
+ },
+ {
+  "n": 30,
+  "company": "Personio",
+  "tier": "Tier 2 - Scale-up",
+  "category": "HR Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 31,
+  "company": "TransferMate",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Fintech",
+  "location": "Dublin"
+ },
+ {
+  "n": 32,
+  "company": "Wolfspeed",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Semiconductor",
+  "location": "Ireland"
+ },
+ {
+  "n": 33,
+  "company": "Cubic Telecom",
+  "tier": "Tier 2 - Scale-up",
+  "category": "IoT/Edge",
+  "location": "Dublin"
+ },
+ {
+  "n": 34,
+  "company": "Genesys",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Contact Center Tech",
+  "location": "Galway/Dublin"
+ },
+ {
+  "n": 35,
+  "company": "Boston Scientific",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Medtech",
+  "location": "Galway"
+ },
+ {
+  "n": 36,
+  "company": "Johnson & Johnson",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Medtech/Pharma",
+  "location": "Cork/Dublin"
+ },
+ {
+  "n": 37,
+  "company": "Met Eireann",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Public Sector/Research",
+  "location": "Dublin"
+ },
+ {
+  "n": 38,
+  "company": "Insight Centre for Data Analytics (UCD)",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Research Centre",
+  "location": "Dublin"
+ },
+ {
+  "n": 39,
+  "company": "ADAPT Centre",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Research Centre",
+  "location": "Dublin/Trinity"
+ },
+ {
+  "n": 40,
+  "company": "Tyndall National Institute",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Research Centre",
+  "location": "Cork"
+ },
+ {
+  "n": 41,
+  "company": "Lero (Irish Software Research Centre)",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Research Centre",
+  "location": "Multiple sites"
+ },
+ {
+  "n": 42,
+  "company": "Teagasc",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Public Sector/AgriTech",
+  "location": "Ireland"
+ },
+ {
+  "n": 43,
+  "company": "CeADAR (UCD-based AI research centre)",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Research Centre",
+  "location": "Dublin (UCD)"
+ },
+ {
+  "n": 44,
+  "company": "Sony/PlayStation",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Gaming/Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 45,
+  "company": "Riot Games",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Gaming",
+  "location": "Dublin"
+ },
+ {
+  "n": 46,
+  "company": "Indeed (company HQ)",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Big Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 47,
+  "company": "Zillow (Dublin data team)",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Big Tech/PropTech",
+  "location": "Dublin"
+ },
+ {
+  "n": 48,
+  "company": "Mastercard",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Fintech/Payments",
+  "location": "Dublin"
+ },
+ {
+  "n": 49,
+  "company": "Fidelity Investments",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Financial Services",
+  "location": "Dublin/Galway"
+ },
+ {
+  "n": 50,
+  "company": "Citi / Bank of America (Dublin)",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Banking",
+  "location": "Dublin"
+ },
+ {
+  "n": 51,
+  "company": "Cubic\u00b3 (Cubic Telecom)",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Automotive/Connectivity",
+  "location": "Dublin + Madrid"
+ },
+ {
+  "n": 52,
+  "company": "Protex AI",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Computer Vision/AI Safety",
+  "location": "Dublin"
+ },
+ {
+  "n": 53,
+  "company": "iCIMS (Dublin AI Hub)",
+  "tier": "Tier 2 - Scale-up",
+  "category": "NLP/LLM/ML Product",
+  "location": "Dublin"
+ },
+ {
+  "n": 54,
+  "company": "EdgeTier",
+  "tier": "Tier 2 - Scale-up",
+  "category": "AI Customer Service",
+  "location": "Dublin"
+ },
+ {
+  "n": 55,
+  "company": "Aylien",
+  "tier": "Tier 2 - Scale-up",
+  "category": "NLP AI",
+  "location": "Dublin"
+ },
+ {
+  "n": 56,
+  "company": "Soapbox Labs",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Speech AI",
+  "location": "Dublin"
+ },
+ {
+  "n": 57,
+  "company": "Manna",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Drone Delivery/Robotics",
+  "location": "Dublin"
+ },
+ {
+  "n": 58,
+  "company": "CalypsoAI",
+  "tier": "Tier 2 - Scale-up",
+  "category": "ML Safety/Monitoring",
+  "location": "Dublin"
+ },
+ {
+  "n": 59,
+  "company": "Celestica",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Manufacturing Tech",
+  "location": "Galway"
+ },
+ {
+  "n": 60,
+  "company": "Xperi",
+  "tier": "Tier 2 - Scale-up",
+  "category": "Embedded/Media Tech",
+  "location": "Galway"
+ },
+ {
+  "n": 61,
+  "company": "Micron Agritech",
+  "tier": "Tier 3 - Niche",
+  "category": "Agritech Computer Vision",
+  "location": "Ireland"
+ },
+ {
+  "n": 62,
+  "company": "Deep Purple AI Consulting",
+  "tier": "Tier 3 - Niche",
+  "category": "CV/ML Consultancy",
+  "location": "Ireland"
+ },
+ {
+  "n": 63,
+  "company": "Akara Robotics",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Robotics + AI",
+  "location": "Dublin"
+ },
+ {
+  "n": 64,
+  "company": "Proveye",
+  "tier": "Tier 3 - Research/Public",
+  "category": "Agri Computer Vision",
+  "location": "Dublin"
+ },
+ {
+  "n": 65,
+  "company": "FTI Consulting",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Consultancy",
+  "location": "Dublin"
+ },
+ {
+  "n": 66,
+  "company": "Thales",
+  "tier": "Tier 1 - Grad Scheme",
+  "category": "Defence/Security/AI",
+  "location": "Belfast, NI"
+ },
+ {
+  "n": 67,
+  "company": "Brightflag",
+  "tier": "Tier 2 - Scale-up",
+  "category": "AI Legal-Tech",
+  "location": "Dublin"
+ },
+ {
+  "n": 68,
+  "company": "Oraion",
+  "tier": "Tier 4 - Longer shot",
+  "category": "AI Enterprise Automation",
+  "location": "Dublin"
+ },
+ {
+  "n": 69,
+  "company": "FairwAI",
+  "tier": "Tier 4 - Longer shot",
+  "category": "AI Bias/Accountability",
+  "location": "Dublin"
+ },
+ {
+  "n": 70,
+  "company": "Valeo (Ireland presence)",
+  "tier": "Tier 4 - Longer shot",
+  "category": "Automotive Computer Vision",
+  "location": "Ireland"
+ }
+]
