@@ -33,6 +33,39 @@ PROVIDERS = [
 
 STRIP = re.compile(r"\((.*?)\)|ireland|dublin|operations|\bhq\b|company", re.I)
 
+# Slugs that do not fall out of the company name mechanically.
+ALIASES = {
+    "HubSpot": ["hubspot", "hubspotjobs"],
+    "Indeed (company HQ)": ["indeed", "indeedjobs"],
+    "KPMG Ireland": ["kpmgireland", "kpmg-ireland", "kpmg"],
+    "Deloitte Ireland": ["deloitteireland", "deloitte"],
+    "Snyk": ["snyk"],
+    "Zendesk": ["zendesk"],
+    "Personio": ["personio", "personiojobs"],
+    "Workday": ["workday"],
+    "Zalando Ireland": ["zalando"],
+    "Tether Operations": ["tether", "tetheroperations"],
+    "Docusign": ["docusign"],
+    "Genesys": ["genesys"],
+    "Fenergo": ["fenergo"],
+    "Xperi": ["xperi"],
+    "Soapbox Labs": ["soapboxlabs", "soapbox"],
+    "TransferMate": ["transfermate"],
+    "Boston Scientific": ["bostonscientific", "bsc"],
+    "Johnson & Johnson": ["jnj", "johnsonandjohnson"],
+    "Mastercard": ["mastercard"],
+    "Proofpoint": ["proofpoint"],
+    "Wolfspeed": ["wolfspeed"],
+    "Celestica": ["celestica"],
+    "Brightflag": ["brightflag"],
+    "CalypsoAI": ["calypsoai", "calypso-ai"],
+    "Protex AI": ["protexai", "protex-ai"],
+    "EdgeTier": ["edgetier"],
+    "Manna": ["manna", "mannadrone", "mannaaero"],
+    "Micron Agritech": ["micronagritech", "micronagri"],
+    "Akara Robotics": ["akararobotics", "akara"],
+}
+
 
 def slugs(name):
     base = STRIP.sub(" ", name)
@@ -54,7 +87,7 @@ def slugs(name):
 
 def probe(company):
     name = company["company"]
-    for slug in slugs(name):
+    for slug in ALIASES.get(name, []) + slugs(name):
         for provider, template, extract in PROVIDERS:
             url = template.format(s=slug)
             try:
@@ -62,7 +95,10 @@ def probe(company):
                 if r.status_code != 200:
                     continue
                 jobs = extract(r.json())
-                if jobs is None:
+                # SmartRecruiters (and others) answer 200 with an empty list
+                # for any slug at all, so "board exists" is not evidence.
+                # Only a board with actual postings counts as a match.
+                if not jobs:
                     continue
                 return {**company, "ats": provider, "slug": slug,
                         "count": len(jobs), "url": url}
