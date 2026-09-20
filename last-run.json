@@ -1,27 +1,27 @@
 {
-  "at": "2026-09-19T09:45:04+00:00",
+  "at": "2026-09-20T10:07:05+00:00",
   "dedupe": {
-    "dup_content": 16,
-    "dup_id": 95,
-    "new": 61,
+    "dup_content": 1,
+    "dup_id": 117,
+    "new": 17,
     "repost": 0,
-    "total": 172
+    "total": 135
   },
   "failures": [],
   "fetched": {
     "_dropped": {
-      "by_title": 122,
-      "dup_in_run": 45
+      "by_title": 121,
+      "dup_in_run": 29
     },
     "_enrichment": {
       "dead": 0,
-      "enriched": 30,
-      "reclassified": 10
+      "enriched": 6,
+      "reclassified": 3
     },
     "glassdoor": 90,
-    "gradireland": 49,
+    "gradireland": 47,
     "indeed": 0,
-    "linkedin": 200
+    "linkedin": 148
   },
-  "new": 61
+  "new": 17
 }
