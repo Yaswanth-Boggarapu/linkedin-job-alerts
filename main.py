@@ -24,6 +24,9 @@ def _write_run_log(stats, fetched, failures, new_count):
                 "new": new_count,
                 "dedupe": stats,
                 "failures": failures,
+                # Count only. The addresses must never land in a public repo,
+                # but the count makes a DIGEST_TO change verifiable from here.
+                "recipients": len(notify.recipients()),
             }, fh, indent=2, sort_keys=True)
     except Exception as exc:          # never let logging break a run
         logging.warning("could not write run log: %s", exc)

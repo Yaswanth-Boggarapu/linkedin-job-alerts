@@ -121,17 +121,30 @@ def _plain(jobs):
     return "\n".join(lines) or "No new roles today."
 
 
+def recipients():
+    """Every address the digest reaches, de-duplicated, sender first.
+
+    DIGEST_TO is a comma-separated list. The sender is always included and
+    goes in To; everyone else is Bcc'd so recipients cannot see each other's
+    addresses. send_message builds the envelope from To + Cc + Bcc and strips
+    the Bcc header before the message goes out.
+    """
+    listed = [a.strip() for a in (config.DIGEST_TO or "").split(",") if a.strip()]
+    out, seen = [], set()
+    for addr in [config.SMTP_USER, *listed]:
+        if addr and addr.lower() not in seen:
+            seen.add(addr.lower())
+            out.append(addr)
+    return out
+
+
 def send_email(jobs, failures, wa_ok=False, fetched=None):
     if not (config.SMTP_USER and config.SMTP_PASS and config.DIGEST_TO):
         log.warning("email not configured, skipping")
         return False
 
-    # DIGEST_TO may hold several addresses. Everyone but the sender goes into
-    # Bcc so recipients cannot see each other's addresses; the sender sits in
-    # To so the message still has one. send_message derives the real recipient
-    # list from To + Cc + Bcc and strips the Bcc header before sending.
-    recipients = [a.strip() for a in config.DIGEST_TO.split(",") if a.strip()]
-    hidden = [a for a in recipients if a.lower() != config.SMTP_USER.lower()]
+    everyone = recipients()
+    hidden = [a for a in everyone if a.lower() != config.SMTP_USER.lower()]
 
     msg = EmailMessage()
     msg["Subject"] = f"{len(jobs)} new roles" if jobs else "No new roles today"
@@ -145,7 +158,7 @@ def send_email(jobs, failures, wa_ok=False, fetched=None):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(config.SMTP_USER, config.SMTP_PASS)
         smtp.send_message(msg)
-    log.info("email sent to %d recipient(s)", len({config.SMTP_USER, *recipients}))
+    log.info("email sent to %d recipient(s)", len(everyone))
     return True
 
 
