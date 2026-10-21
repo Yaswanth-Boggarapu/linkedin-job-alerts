@@ -126,17 +126,26 @@ def send_email(jobs, failures, wa_ok=False, fetched=None):
         log.warning("email not configured, skipping")
         return False
 
+    # DIGEST_TO may hold several addresses. Everyone but the sender goes into
+    # Bcc so recipients cannot see each other's addresses; the sender sits in
+    # To so the message still has one. send_message derives the real recipient
+    # list from To + Cc + Bcc and strips the Bcc header before sending.
+    recipients = [a.strip() for a in config.DIGEST_TO.split(",") if a.strip()]
+    hidden = [a for a in recipients if a.lower() != config.SMTP_USER.lower()]
+
     msg = EmailMessage()
     msg["Subject"] = f"{len(jobs)} new roles" if jobs else "No new roles today"
     msg["From"] = config.SMTP_USER
-    msg["To"] = config.DIGEST_TO
+    msg["To"] = config.SMTP_USER
+    if hidden:
+        msg["Bcc"] = ", ".join(hidden)
     msg.set_content(_plain(jobs))
     msg.add_alternative(_html(jobs, failures, wa_ok, fetched), subtype="html")
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(config.SMTP_USER, config.SMTP_PASS)
         smtp.send_message(msg)
-    log.info("email sent to %s", config.DIGEST_TO)
+    log.info("email sent to %d recipient(s)", len({config.SMTP_USER, *recipients}))
     return True
 
 

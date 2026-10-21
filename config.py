@@ -63,6 +63,7 @@ TITLE_EXCLUDE = [
 # Secrets come from the environment.
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
+# Comma-separated. Everyone except SMTP_USER is Bcc'd (see notify.send_email).
 DIGEST_TO = os.environ.get("DIGEST_TO", "")
 
 WA_TOKEN = os.environ.get("WA_TOKEN", "")
