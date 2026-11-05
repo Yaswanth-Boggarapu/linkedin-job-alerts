@@ -11,6 +11,7 @@ from email.message import EmailMessage
 import requests
 
 import config
+import insights
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,25 @@ TH = "padding:8px 12px;text-align:left;border-bottom:2px solid #ddd;font-size:13
 TD = "padding:8px 12px;border-bottom:1px solid #eee;vertical-align:top"
 
 
+def _signals_cell(job):
+    """Hiring signals as compact badges, plus a direct apply link if the
+    source gave one. Sources differ in what they expose, so most rows will
+    show only a couple of these."""
+    parts = []
+    for badge in insights.badges(job):
+        colour = "#b26a00" if ("busy" in badge or "closes" in badge) else "#555"
+        parts.append(
+            f"<span style='display:inline-block;background:#f4f4f4;color:{colour};"
+            f"border-radius:3px;padding:1px 6px;margin:0 3px 3px 0;"
+            f"font-size:11px;white-space:nowrap'>{badge}</span>")
+
+    if job.get("apply_url"):
+        parts.append(
+            f"<a href='{job['apply_url']}' style='font-size:11px'>apply direct</a>")
+
+    return "".join(parts)
+
+
 def _rows(jobs):
     out = []
     for job in jobs:
@@ -42,6 +62,7 @@ def _rows(jobs):
             f"<td style='{TD}'>{job.get('company') or ''}</td>"
             f"<td style='{TD};{exp_style}'>{exp}</td>"
             f"<td style='{TD}'>{job.get('location') or ''}</td>"
+            f"<td style='{TD}'>{_signals_cell(job)}</td>"
             f"<td style='{TD};color:#666'>{SITE_NAMES.get(job.get('site'), job.get('site') or '')}</td>"
             f"</tr>"
         )
@@ -105,7 +126,7 @@ def _html(jobs, failures, wa_ok, fetched=None):
         f"<tr>"
         f"<th style='{TH}'>Role</th><th style='{TH}'>Company</th>"
         f"<th style='{TH}'>Experience</th><th style='{TH}'>Location</th>"
-        f"<th style='{TH}'>Source</th>"
+        f"<th style='{TH}'>Signals</th><th style='{TH}'>Source</th>"
         f"</tr>{_rows(jobs)}</table>{note}{wa_line}</div>"
     )
 
@@ -113,10 +134,12 @@ def _html(jobs, failures, wa_ok, fetched=None):
 def _plain(jobs):
     lines = []
     for j in jobs:
+        badges = insights.badges(j)
+        extra = f"\n  {' | '.join(badges)}" if badges else ""
         lines.append(
             f"{j.get('title')} | {j.get('company')} | {j.get('exp_label')} | "
             f"{j.get('location')} | {SITE_NAMES.get(j.get('site'), j.get('site'))}\n"
-            f"  {j.get('job_url')}"
+            f"  {j.get('job_url')}{extra}"
         )
     return "\n".join(lines) or "No new roles today."
 

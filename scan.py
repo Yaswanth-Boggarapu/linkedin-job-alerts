@@ -18,8 +18,14 @@ import gradireland
 
 log = logging.getLogger(__name__)
 
+# JobSpy returns 34 fields; these are the ones measured as populated often
+# enough to be worth carrying. Indeed fills most of them, LinkedIn almost
+# none (its signals come from enrich.py instead).
 KEEP = ["site", "id", "title", "company", "location", "job_url",
-        "date_posted", "job_level", "description"]
+        "date_posted", "job_level", "description",
+        "job_url_direct", "job_type", "company_rating",
+        "company_num_employees",
+        "min_amount", "max_amount", "currency"]
 
 
 # Word-bounded on purpose. Plain substring matching made "lead" reject
@@ -120,6 +126,20 @@ def collect():
             dropped["dup_in_run"] += 1
             continue
         seen_in_run.add(key)
+
+        # Normalise JobSpy's column names onto the shared signal names.
+        if job.get("job_url_direct"):
+            job["apply_url"] = job.pop("job_url_direct")
+        else:
+            job.pop("job_url_direct", None)
+        if job.get("company_num_employees"):
+            job["company_size"] = job.pop("company_num_employees")
+        else:
+            job.pop("company_num_employees", None)
+        lo, hi = job.pop("min_amount", None), job.pop("max_amount", None)
+        cur = job.pop("currency", None)
+        if lo:
+            job["salary"] = {"currency": cur, "lower": lo, "upper": hi}
 
         rank, label = experience.classify(job)
         job["exp_rank"] = rank

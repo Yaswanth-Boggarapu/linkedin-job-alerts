@@ -39,3 +39,14 @@ def test_years_ignored_when_not_about_experience():
 
 def test_unknown_sorts_last():
     assert rank("Data Scientist")[0] == 9
+
+
+def test_stated_opportunity_type_beats_title_inference():
+    """gradireland states the kind outright, which is better than guessing."""
+    job = {"title": "Data Scientist", "opportunity_type": "Graduate scheme"}
+    assert experience.classify(job)[1] == "Graduate/Intern"
+
+
+def test_opportunity_type_absent_falls_back_to_title():
+    job = {"title": "Senior Data Engineer", "opportunity_type": ""}
+    assert experience.classify(job)[0] == 5

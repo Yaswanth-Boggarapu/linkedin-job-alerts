@@ -60,13 +60,17 @@ def _clean_lines(chunk):
     return out
 
 
-def _gd_company(before):
-    """Company sits just above the rating, which sits just above the title."""
+def _gd_company_and_rating(before):
+    """Company sits just above the rating, which sits just above the title.
+
+    The rating was already being located to find the company and then
+    discarded, which is a waste: it is Glassdoor's whole reason for being.
+    """
     lines = _clean_lines(before[-500:])
     for i in range(len(lines) - 1, -1, -1):
         if _RATING.match(lines[i]) and i:
-            return lines[i - 1]
-    return lines[-1] if lines else ""
+            return lines[i - 1], lines[i]
+    return (lines[-1] if lines else ""), ""
 
 
 def _gd_location(after):
@@ -93,11 +97,13 @@ def parse_glassdoor(md):
         if age:
             posted = str(date.today() - timedelta(days=int(age.group(1))))
 
+        company, rating = _gd_company_and_rating(md[:m.start()])
         jobs.append({
             "site": GLASSDOOR,
             "id": jid,
             "title": title,
-            "company": _gd_company(md[:m.start()]),
+            "company": company,
+            "company_rating": rating,
             "location": _gd_location(md[m.end():]),
             "job_url": url.split("?")[0],
             "date_posted": posted,

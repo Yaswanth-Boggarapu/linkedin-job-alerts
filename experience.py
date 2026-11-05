@@ -65,6 +65,15 @@ def _from_years(text):
 
 def classify(job):
     """Return (rank, label). Lower rank is more junior."""
+    # gradireland states the kind of opportunity outright ("Graduate job",
+    # "Graduate scheme", "Internship"). Structured data from the source beats
+    # guessing at the title, so it is checked first.
+    stated = (job.get("opportunity_type") or "").strip()
+    if stated:
+        for rank, label, rx in _COMPILED:
+            if rx.search(stated):
+                return rank, label
+
     title = job.get("title") or ""
 
     for rank, label, rx in _COMPILED:

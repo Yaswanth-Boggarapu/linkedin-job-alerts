@@ -29,9 +29,19 @@ _DESC = re.compile(
     r'<div class="(?:show-more-less-html__markup|description__text)[^"]*">(.*?)</div>',
     re.S,
 )
-_CRITERIA = re.compile(
-    r'criteria__subheader">\s*Seniority level\s*</h3>\s*'
-    r'<span[^>]*criteria__text[^>]*>\s*([^<]+?)\s*</span>', re.S | re.I)
+# LinkedIn's own hiring signals. All three were present on the /jobs/view
+# page this already fetches, so they cost no extra requests.
+#
+# The criteria__subheader blocks that used to be parsed here for "Seniority
+# level" are gone from LinkedIn's markup: a probe found zero matches across
+# every job and both page forms, so that extraction had been silently dead.
+# Experience now comes from the title and the description alone.
+_APPLICANTS = re.compile(
+    r'num-applicants__caption[^>]*>\s*([^<]+?)\s*<', re.I)
+_POSTED = re.compile(
+    r'posted-time-ago__text[^>]*>\s*([^<]+?)\s*<', re.I)
+_POSTER = re.compile(
+    r'base-main-card__title[^>]*>\s*([^<]+?)\s*<', re.I)
 _TAGS = re.compile(r"<[^>]+>")
 _WS = re.compile(r"\s+")
 
@@ -60,9 +70,12 @@ def _fetch_one(job, timeout):
         if body:
             job["description"] = _text(body.group(1))[:4000]
 
-        level = _CRITERIA.search(html)
-        if level:
-            job["job_level"] = level.group(1)
+        for pattern, key in ((_APPLICANTS, "applicants_text"),
+                             (_POSTED, "posted_ago"),
+                             (_POSTER, "hiring_contact")):
+            found = pattern.search(html)
+            if found:
+                job[key] = " ".join(found.group(1).split())[:60]
     except Exception as exc:
         log.debug("enrich failed for %s: %s", url, exc)
     return job
@@ -101,6 +114,8 @@ def enrich(jobs, timeout=15, workers=4, pause=0.4):
         job.pop("job_level", None)
         kept.append(job)
 
-    stats = {"enriched": enriched, "dead": dead, "reclassified": reclassified}
+    with_signals = sum(1 for j in kept if j.get("applicants_text"))
+    stats = {"enriched": enriched, "dead": dead,
+             "reclassified": reclassified, "with_applicants": with_signals}
     log.info("enrichment: %s", stats)
     return kept, stats

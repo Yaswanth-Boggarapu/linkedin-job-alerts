@@ -93,18 +93,57 @@ def _recent(doc, cutoff):
     return created >= cutoff
 
 
+def _company(doc):
+    """Employer name, from whichever field carries it.
+
+    sourceOrganisationName is filled on about 7 in 10 documents and
+    organisation.title on about 4 in 10, but they are complementary rather
+    than redundant: together they covered 10/10 on a sample. Using only the
+    first left most gradireland rows with a blank employer.
+    """
+    direct = (doc.get("sourceOrganisationName") or "").strip()
+    if direct:
+        return direct
+    org = doc.get("organisation")
+    if isinstance(org, dict):
+        return (org.get("title") or "").strip()
+    return ""
+
+
+def _location(doc):
+    """location is a plain string, city is a list, regions is the fallback."""
+    if doc.get("location"):
+        return str(doc["location"])
+    city = doc.get("city") or []
+    if isinstance(city, list) and city:
+        return ", ".join(str(c) for c in city)
+    regions = doc.get("regions") or []
+    return ", ".join(str(r) for r in regions) or "Ireland"
+
+
+def _apply_url(doc):
+    """The employer's own application page, minus gradireland's tracking."""
+    url = (doc.get("applicationUrl") or "").strip()
+    return url.split("?utm_source=")[0] if url else ""
+
+
 def _normalise(doc):
     """Map to the same shape every other source returns."""
-    regions = doc.get("regions") or []
+    kinds = doc.get("opportunityType") or []
     return {
         "site": SITE,
         "id": str(doc.get("nid") or doc.get("uuid") or ""),
         "title": doc.get("title") or "",
-        "company": doc.get("sourceOrganisationName") or "",
-        "location": ", ".join(str(r) for r in regions) or "Ireland",
+        "company": _company(doc),
+        "location": _location(doc),
         "job_url": "https://gradireland.com" + (doc.get("path") or ""),
         "date_posted": (doc.get("createdAt") or "")[:10],
         "description": doc.get("body") or "",
+        # Signals no job board gives us.
+        "deadline": doc.get("applicationDeadline"),
+        "opportunity_type": kinds[0] if isinstance(kinds, list) and kinds else "",
+        "salary": doc.get("salary"),
+        "apply_url": _apply_url(doc),
     }
 
 
